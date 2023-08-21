@@ -1,6 +1,6 @@
 {
-  "name": "re-resizable",
-  "version": "6.9.11",
+  "name": "creep-re-resizable",
+  "version": "2.2.8",
   "description": "Resizable component for React.",
   "title": "re-resizable",
   "main": "./lib/index.es5.js",
@@ -55,6 +55,7 @@
     "@types/react": "16.8.7",
     "@types/react-dom": "17.0.9",
     "@types/sinon": "9.0.10",
+    "ava": "^5.3.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.1.0",
@@ -100,7 +101,6 @@
     ],
     "fixture": "./test/fixture.html"
   },
-  "dependencies": {},
   "peerDependencies": {
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.13.1 || ^17.0.0 || ^18.0.0"
