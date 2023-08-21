@@ -97,7 +97,7 @@ export interface ResizableProps {
   lockAspectRatio?: boolean | number;
   lockAspectRatioExtraWidth?: number;
   lockAspectRatioExtraHeight?: number;
-  enable?: Enable | false;
+  enable?: Enable;
   handleStyles?: HandleStyles;
   handleClasses?: HandleClassName;
   handleWrapperStyle?: React.CSSProperties;
@@ -888,22 +888,18 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
     if (!enable) {
       return null;
     }
-    const resizers = Object.keys(enable).map(dir => {
-      if (enable[dir as Direction] !== false) {
-        return (
-          <Resizer
-            key={dir}
-            direction={dir as Direction}
-            onResizeStart={this.onResizeStart}
-            replaceStyles={handleStyles && handleStyles[dir as Direction]}
-            className={handleClasses && handleClasses[dir as Direction]}
-          >
-            {handleComponent && handleComponent[dir as Direction] ? handleComponent[dir as Direction] : null}
-          </Resizer>
-        );
-      }
-      return null;
-    });
+
+    const resizers = Object.keys(enable).map(dir => (
+      <Resizer
+        key={dir}
+        direction={dir as Direction}
+        onResizeStart={enable[dir as Direction] ? this.onResizeStart : () => {}}
+        replaceStyles={handleStyles && handleStyles[dir as Direction]}
+        className={handleClasses && handleClasses[dir as Direction]}
+      >
+        {handleComponent && handleComponent[dir as Direction] ? handleComponent[dir as Direction] : null}
+      </Resizer>
+    ));
     // #93 Wrap the resize box in span (will not break 100% width/height)
     return (
       <div className={handleWrapperClass} style={handleWrapperStyle}>
