@@ -30,14 +30,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bokuweb/react-resizable-box.git"
+    "url": "https://github.com/hustLer2k/re-resizable.git"
   },
   "author": "bokuweb",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bokuweb/react-resizable-box/issues"
+    "url": "https://github.com/hustLer2k/re-resizable/issues"
   },
-  "homepage": "https://github.com/bokuweb/react-resizable-box",
+  "homepage": "https://github.com/hustLer2k/re-resizable",
   "devDependencies": {
     "@babel/cli": "7.11.6",
     "@babel/core": "7.11.6",
