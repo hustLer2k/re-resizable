@@ -1,6 +1,6 @@
 {
   "name": "creep-re-resizable",
-  "version": "2.2.8",
+  "version": "2.3.0",
   "description": "Resizable component for React.",
   "title": "re-resizable",
   "main": "./lib/index.es5.js",
