@@ -21,6 +21,19 @@
 ### :house: Internal
 -->
 
+
+## [6.9.16 (2024-04-25)](https://github.com/bokuweb/re-resizable/compare/v6.9.16...v6.9.14)
+
+### :nail_care: Enhancement
+
+- Fixes resizable field always being null in React 18.3.
+
+## [6.9.14 (2024-04-21)](https://github.com/bokuweb/re-resizable/compare/v6.9.14...v6.9.11)
+
+### :bug: Bug Fix
+
+- Fixed a bug, onResize fired before snapping to grid #783
+
 ## [6.9.11 (2023-08-10)](https://github.com/bokuweb/re-resizable/compare/v6.9.11...v6.9.9)
 
 ### :nail_care: Enhancement

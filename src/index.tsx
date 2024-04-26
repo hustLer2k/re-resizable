@@ -44,8 +44,8 @@ export interface HandleClassName {
 }
 
 export interface Size {
-  width: string | number;
-  height: string | number;
+  width?: string | number;
+  height?: string | number;
 }
 
 export interface NumberSize {
@@ -109,7 +109,7 @@ export interface ResizableProps {
   onResizeStop?: ResizeCallback;
   defaultSize?: Size;
   scale?: number;
-  resizeRatio?: number;
+  resizeRatio?: number | [number, number];
 }
 
 interface State {
@@ -228,8 +228,16 @@ const calculateNewMax = (
   };
 };
 
+/**
+ * transform T | [T, T] to [T, T]
+ * @param val 
+ * @returns 
+ */
+const normalizeToPair = <T,>(val: T | [T, T]): [T, T] => (Array.isArray(val) ? val : [val, val]);
+
 const definedProps = [
   'as',
+  'ref',
   'style',
   'className',
   'grid',
@@ -325,7 +333,7 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
       if (typeof this.state[key] === 'undefined' || this.state[key] === 'auto') {
         return 'auto';
       }
-      if (this.propsSize && this.propsSize[key] && this.propsSize[key].toString().endsWith('%')) {
+      if (this.propsSize && this.propsSize[key] && this.propsSize[key]?.toString().endsWith('%')) {
         if (this.state[key].toString().endsWith('%')) {
           return this.state[key].toString();
         }
@@ -389,14 +397,8 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
     super(props);
     this.state = {
       isResizing: false,
-      width:
-        typeof (this.propsSize && this.propsSize.width) === 'undefined'
-          ? 'auto'
-          : this.propsSize && this.propsSize.width,
-      height:
-        typeof (this.propsSize && this.propsSize.height) === 'undefined'
-          ? 'auto'
-          : this.propsSize && this.propsSize.height,
+      width:  this.propsSize?.width ?? 'auto',
+      height: this.propsSize?.height ?? 'auto',
       direction: 'right',
       original: {
         x: 0,
@@ -581,7 +583,7 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
 
   calculateNewSizeFromDirection(clientX: number, clientY: number) {
     const scale = this.props.scale || 1;
-    const resizeRatio = this.props.resizeRatio || 1;
+    const [resizeRatioX, resizeRatioY] = normalizeToPair(this.props.resizeRatio || 1);
     const { direction, original } = this.state;
     const { lockAspectRatio, lockAspectRatioExtraHeight, lockAspectRatioExtraWidth } = this.props;
     let newWidth = original.width;
@@ -589,25 +591,25 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
     const extraHeight = lockAspectRatioExtraHeight || 0;
     const extraWidth = lockAspectRatioExtraWidth || 0;
     if (hasDirection('right', direction)) {
-      newWidth = original.width + ((clientX - original.x) * resizeRatio) / scale;
+      newWidth = original.width + ((clientX - original.x) * resizeRatioX) / scale;
       if (lockAspectRatio) {
         newHeight = (newWidth - extraWidth) / this.ratio + extraHeight;
       }
     }
     if (hasDirection('left', direction)) {
-      newWidth = original.width - ((clientX - original.x) * resizeRatio) / scale;
+      newWidth = original.width - ((clientX - original.x) * resizeRatioX) / scale;
       if (lockAspectRatio) {
         newHeight = (newWidth - extraWidth) / this.ratio + extraHeight;
       }
     }
     if (hasDirection('bottom', direction)) {
-      newHeight = original.height + ((clientY - original.y) * resizeRatio) / scale;
+      newHeight = original.height + ((clientY - original.y) * resizeRatioY) / scale;
       if (lockAspectRatio) {
         newWidth = (newHeight - extraHeight) * this.ratio + extraWidth;
       }
     }
     if (hasDirection('top', direction)) {
-      newHeight = original.height - ((clientY - original.y) * resizeRatio) / scale;
+      newHeight = original.height - ((clientY - original.y) * resizeRatioY) / scale;
       if (lockAspectRatio) {
         newWidth = (newHeight - extraHeight) * this.ratio + extraWidth;
       }
@@ -801,8 +803,10 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
       const newGridWidth = snap(newWidth, this.props.grid[0]);
       const newGridHeight = snap(newHeight, this.props.grid[1]);
       const gap = this.props.snapGap || 0;
-      newWidth = gap === 0 || Math.abs(newGridWidth - newWidth) <= gap ? newGridWidth : newWidth;
-      newHeight = gap === 0 || Math.abs(newGridHeight - newHeight) <= gap ? newGridHeight : newHeight;
+      const w = gap === 0 || Math.abs(newGridWidth - newWidth) <= gap ? newGridWidth : newWidth;
+      const h = gap === 0 || Math.abs(newGridHeight - newHeight) <= gap ? newGridHeight : newHeight;
+      newWidth = w;
+      newHeight = h;
     }
 
     const delta = {
@@ -847,13 +851,22 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
       newState.flexBasis = newState.height;
     }
 
-    // For v18, update state sync
-    flushSync(() => {
-      this.setState(newState);
-    });
+    const widthChanged = this.state.width !== newState.width;
+    const heightChanged = this.state.height !== newState.height;
+    const flexBaseChanged = this.state.flexBasis !== newState.flexBasis;
+    const changed = widthChanged || heightChanged || flexBaseChanged;
+
+    if (changed) {
+      // For v18, update state sync
+      flushSync(() => {
+        this.setState(newState);
+      });
+    }
 
     if (this.props.onResize) {
-      this.props.onResize(event, direction, this.resizable, delta);
+      if (changed) {
+        this.props.onResize(event, direction, this.resizable, delta);
+      }
     }
   }
 
@@ -870,7 +883,7 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
       this.props.onResizeStop(event, direction, this.resizable, delta);
     }
     if (this.props.size) {
-      this.setState(this.props.size);
+      this.setState({ width: this.props.size.width ?? 'auto', height: this.props.size.height ?? 'auto' });
     }
     this.unbindEvents();
     this.setState({
@@ -880,7 +893,7 @@ export class Resizable extends React.PureComponent<ResizableProps, State> {
   }
 
   updateSize(size: Size) {
-    this.setState({ width: size.width, height: size.height });
+    this.setState({ width: size.width ?? 'auto', height: size.height ?? 'auto' });
   }
 
   renderResizer() {

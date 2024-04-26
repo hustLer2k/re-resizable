@@ -70,6 +70,20 @@ import { Resizable } from 're-resizable';
 </Resizable>
 ```
 
+If you only want to set the width, you can do so by providing just the width property. 
+The height property will automatically be set to auto, which means it will adjust 100% of its parent's height:
+
+```javascript
+import { Resizable } from 're-resizable';
+
+<Resizable
+  defaultSize={{
+    width: 320
+  }}
+>
+  Sample with default size
+</Resizable>
+```
 ### Example with `size`
 
 If you use `size` props, please manage state by yourself.
@@ -92,7 +106,7 @@ import { Resizable } from 're-resizable';
 
 ## Props
 
-#### `defaultSize?: { width: (number | string), height: (number | string) };`
+#### `defaultSize?: { width?: (number | string), height?: (number | string) };`
 
 Specifies the `width` and `height` that the dragged item should start at.
 For example, you can set `300`, `'300px'`, `50%`.
@@ -100,7 +114,7 @@ If both `defaultSize` and `size` omitted, set `'auto'`.
 
 `defaultSize` will be ignored when `size` set.
 
-#### `size?: { width: (number | string), height: (number | string) };`
+#### `size?: { width?: (number | string), height?: (number | string) };`
 
 The `size` property is used to set the size of the component.
 For example, you can set `300`, `'300px'`, `50%`.
@@ -147,9 +161,11 @@ The `snap` property is used to specify absolute pixel values that resizing shoul
 
 The `snapGap` property is used to specify the minimum gap required in order to move to the next snapping target. Defaults to `0` which means that snap targets are always used.
 
-#### `resizeRatio?: number | string;`
+#### `resizeRatio?: number | [number, number];`
 
 The `resizeRatio` property is used to set the number of pixels the resizable component scales by compared to the number of pixels the mouse/touch moves. Defaults to `1` (for a 1:1 ratio). The number set is the left side of the ratio, `2` will give a 2:1 ratio.
+
+For [number, number] means [resizeRatioX, resizeRatioY], more precise control.
 
 #### `lockAspectRatio?: boolean | number;`
 
